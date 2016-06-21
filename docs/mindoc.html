@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>mindoc.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="public/stylesheets/normalize.css" />
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="page">
+
+      <div class="header">
+        
+          
+          <h1 id="mindoc-js">mindoc.js</h1>
+
+          
+        
+
+        
+      </div>
+
+      
+        
+        <p>GitHub: <a href="https://bitfragment.github.io/mindoc">https://bitfragment.github.io/mindoc</a></p>
+
+        
+      
+        
+        <p>Begin module.</p>
+
+        
+          <div class='highlight'><pre><span class="hljs-keyword">var</span> mindoc = (<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div>
+        
+      
+        
+        <h2 id="handling-pandoc-output">Handling Pandoc output</h2>
+
+        
+      
+        
+        <h3 id="return-a-capitalized-string">Return a capitalized string</h3>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">capitalize</span>(<span class="hljs-params">str</span>) </span>{
+        str = str.toLowerCase();
+        <span class="hljs-keyword">return</span> str.charAt(<span class="hljs-number">0</span>).toUpperCase() + str.substr(<span class="hljs-number">1</span>);
+    }</pre></div>
+        
+      
+        
+        <h3 id="dehyphenate-a-string-of-hyphenated-words">Dehyphenate a string of hyphenated words</h3>
+
+        
+      
+        
+        <p>Replace hyphens with spaces.</p>
+
+        
+          <div class='highlight'><pre>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">deHyphenateWords</span>(<span class="hljs-params">str</span>) </span>{
+        <span class="hljs-keyword">var</span> re = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-regexp">/^\b[a-z]\S+\b-\b\S+\b/</span>);
+        <span class="hljs-keyword">if</span> (re.test(str)) str = str.replace(<span class="hljs-regexp">/-+/g</span>, <span class="hljs-string">' '</span>);
+        <span class="hljs-keyword">return</span> str;
+    }</pre></div>
+        
+      
+        
+        <h3 id="resolve-pandoc-section-id-attributes">Resolve Pandoc section ‘id’ attributes</h3>
+
+        
+      
+        
+        <p>Replace hyphens with spaces and capitalize the first
+(or only) word.</p>
+
+        
+          <div class='highlight'><pre>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">resolvePandocId</span>(<span class="hljs-params">id</span>) </span>{
+        id = deHyphenateWords(id);
+        <span class="hljs-keyword">return</span> capitalize(id);
+    }</pre></div>
+        
+      
+        
+        <h2 id="dom-manipulation">DOM manipulation</h2>
+
+        
+      
+        
+        <h3 id="test-add-and-remove-dom-element-class-attributes">Test, add, and remove DOM element class attributes</h3>
+
+        
+      
+        
+        <p>Adapted from
+<a href="http://jaketrent.com/post/addremove-classes-raw-javascript/">http://jaketrent.com/post/addremove-classes-raw-javascript/</a></p>
+
+        
+      
+        
+        <p>Pandoc interprets <code>$</code> in a template as the start of a template
+variable, so we have to avoid the regexp metacharacter <code>$</code> here.
+Instead, we match space or nothing: <code>(\s|)</code></p>
+
+        
+          <div class='highlight'><pre>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hasClass</span>(<span class="hljs-params">element, cls</span>) </span>{
+        <span class="hljs-keyword">return</span> !!element.className.match(<span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'(\\s|^)'</span> + cls + <span class="hljs-string">'(\\s|)'</span>));
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addClass</span>(<span class="hljs-params">element, cls</span>) </span>{
+        <span class="hljs-keyword">if</span> (!hasClass(element, cls)) element.className += <span class="hljs-string">' '</span> + cls;
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">removeClass</span>(<span class="hljs-params">element, cls</span>) </span>{
+        <span class="hljs-keyword">if</span> (hasClass(element, cls)) {
+            <span class="hljs-keyword">var</span> re = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'(\\s|^)'</span> + cls + <span class="hljs-string">'(\\s|)'</span>);
+            element.className = element.className.replace(re, <span class="hljs-string">' '</span>);
+        }
+    }</pre></div>
+        
+      
+        
+        <h3 id="add-pure-css-classes">Add Pure.css classes</h3>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addPureClasses</span>(<span class="hljs-params"></span>) </span>{
+
+        <span class="hljs-keyword">var</span> elts, eltslen,
+            pureClasses = {
+                <span class="hljs-string">'table'</span>: <span class="hljs-string">'pure-table pure-table-bordered'</span>
+            };
+
+        <span class="hljs-built_in">Object</span>.keys(pureClasses).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">key</span>) </span>{
+            elts = <span class="hljs-built_in">document</span>.getElementsByTagName(key);
+            eltslen = elts.length;
+            <span class="hljs-keyword">if</span> (eltslen &gt; <span class="hljs-number">1</span>) {
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; eltslen; i++) {
+                    addClass(elts[i], pureClasses[key]);
+                }
+            }
+        });
+
+    }</pre></div>
+        
+      
+        
+        <h3 id="add-event-listeners-to-reference-links">Add event listeners to reference links</h3>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addRefLinkEventListeners</span>(<span class="hljs-params">citeElts, refsElt</span>) </span>{
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, l = citeElts.length; i &lt; l; i++) {
+            <span class="hljs-keyword">var</span> citeLinks = citeElts[i].getElementsByTagName(<span class="hljs-string">'a'</span>);
+            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> j = <span class="hljs-number">0</span>, ll = citeLinks.length; j &lt; ll; j++) {
+                citeLinks[j].addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                    removeClass(refsElt, <span class="hljs-string">'hidden'</span>);
+                });
+            }
+        }
+    }</pre></div>
+        
+      
+        
+        <h3 id="add-event-listeners-to-footnote-links">Add event listeners to footnote links</h3>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addFnLinkEventListeners</span>(<span class="hljs-params">fnElts, notesElt</span>) </span>{
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, l = fnElts.length; i &lt; l; i++) {
+            fnElts[i].addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                removeClass(notesElt, <span class="hljs-string">'hidden'</span>);
+            });
+        }
+    }</pre></div>
+        
+      
+        
+        <h2 id="create-navigation">Create navigation</h2>
+
+        
+      
+        
+        <p>When Pandoc is invoked with its <code>--section-divs</code> option, HTML
+output includes the class ‘level’ + n (where n is an integer) added
+to <code>&lt;div&gt;</code> elements enclosing document sections, plus ‘id’
+attributes generated from header text:</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"foo"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"section level2"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Foo<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+...
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>
+<p>If <code>html5</code> is specified as Pandoc’s output format, Pandoc creates
+<code>&lt;section&gt;</code> elements instead:</p>
+<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">section</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"foo"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"level2"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">h2</span>&gt;</span>Foo<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span>
+...
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre>
+
+        
+      
+        
+        <h3 id="create-a-menu-list-item-element">Create a menu list item element</h3>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createMenuListItemElt</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> elt = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'li'</span>);
+        addClass(elt, <span class="hljs-string">'pure-menu-item'</span>);
+        <span class="hljs-keyword">return</span> elt;
+    }</pre></div>
+        
+      
+        
+        <h3 id="create-a-menu-list-item-anchor-element">Create a menu list item anchor element</h3>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createMenuAElt</span>(<span class="hljs-params">sectionId</span>) </span>{
+        <span class="hljs-keyword">var</span> elt = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'a'</span>);
+        elt.id = <span class="hljs-string">'menu-'</span> + sectionId;
+        elt.href = <span class="hljs-string">'#'</span>;
+        elt.innerHTML = resolvePandocId(sectionId);
+        addClass(elt, <span class="hljs-string">'pure-menu-link'</span>);
+        <span class="hljs-keyword">return</span> elt;
+    }</pre></div>
+        
+      
+        
+        <h3 id="create-and-add-nav-menu-to-the-page">Create and add nav menu to the page</h3>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createNavigation</span>(<span class="hljs-params">sectionElts</span>) </span>{
+        <span class="hljs-keyword">var</span> docFrag = <span class="hljs-built_in">document</span>.createDocumentFragment(),
+            navNav  = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'nav'</span>),
+            navDiv  = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>),
+            navList = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'ul'</span>);
+
+        docFrag.appendChild(navNav);
+        navNav.appendChild(navDiv);
+        navDiv.appendChild(navList);
+        addClass(navDiv, <span class="hljs-string">'pure-menu'</span>);
+        addClass(navList,  <span class="hljs-string">'pure-menu-list'</span>);</pre></div>
+        
+      
+        
+        <p>Add ‘All sections’ as first menu item.</p>
+
+        
+          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> allSectionsId = <span class="hljs-string">'All sections'</span>,
+            allSections = createMenuListItemElt();
+
+        addClass(allSections, <span class="hljs-string">'pure-menu-selected'</span>)
+        navList.appendChild(allSections);
+        allSections.appendChild(createMenuAElt(allSectionsId));</pre></div>
+        
+      
+        
+        <p>Add menu list items and links, using ‘id’ attributes of
+section elements.</p>
+
+        
+          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> sectionId, menuListElement;
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, l = sectionElts.length; i &lt; l; i++) {
+            sectionId = sectionElts[i].getAttribute(<span class="hljs-string">'id'</span>);
+            menuListElement = createMenuListItemElt();
+            navList.appendChild(menuListElement);
+            menuListElement.appendChild(createMenuAElt(sectionId));
+        }
+
+        <span class="hljs-keyword">var</span> pageContent = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'page-content'</span>);
+        <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'body'</span>).insertBefore(docFrag, pageContent);
+    }</pre></div>
+        
+      
+        
+        <h3 id="toggle-selected-menu-element">Toggle selected menu element</h3>
+
+        
+      
+        
+        <p>Toggle by removing a class from the currently selected element
+and adding it to the element passed to this function.</p>
+
+        
+          <div class='highlight'><pre>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">toggleSelectedMenuElt</span>(<span class="hljs-params">elt</span>) </span>{
+        <span class="hljs-keyword">var</span> selectedElement;
+        <span class="hljs-keyword">if</span> (!elt.hasAttribute(<span class="hljs-string">'pure-menu-selected'</span>)) {
+            selectedElement = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'.pure-menu-selected'</span>);
+            removeClass(selectedElement, <span class="hljs-string">'pure-menu-selected'</span>);
+            addClass(elt, <span class="hljs-string">'pure-menu-selected'</span>);
+        }
+    }</pre></div>
+        
+      
+        
+        <h3 id="event-listener-to-show-and-hide-document-sections">Event listener to show and hide document sections</h3>
+
+        
+      
+        
+        <p>Toggle the selected menu item, then hide the document section
+currently shown and show the section with the relevant id attribute.</p>
+
+        
+          <div class='highlight'><pre>    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">showHideSectionElts</span>(<span class="hljs-params">sectionElts, link</span>) </span>{
+        <span class="hljs-keyword">var</span> elt,
+            clickedId = link.getAttribute(<span class="hljs-string">'id'</span>),
+            resolvedClickedId = clickedId.replace(<span class="hljs-regexp">/menu-/</span>, <span class="hljs-string">''</span>),
+            clickedParent = <span class="hljs-built_in">document</span>.getElementById(clickedId).parentNode;
+
+        toggleSelectedMenuElt(clickedParent);
+
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> section <span class="hljs-keyword">in</span> sectionElts) {
+            elt = sectionElts[section];
+            <span class="hljs-keyword">if</span> (!hasClass(elt, <span class="hljs-string">'hidden'</span>)) addClass(elt, <span class="hljs-string">'hidden'</span>);
+            <span class="hljs-keyword">if</span> (elt.getAttribute(<span class="hljs-string">'id'</span>) === resolvedClickedId &amp;&amp;
+                hasClass(elt, <span class="hljs-string">'hidden'</span>)) removeClass(elt, <span class="hljs-string">'hidden'</span>);
+        }
+    }</pre></div>
+        
+      
+        
+        <h3 id="event-listener-to-show-all-document-sections">Event listener to show all document sections</h3>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">showAllSectionElts</span>(<span class="hljs-params">sectionElts</span>) </span>{
+        <span class="hljs-keyword">var</span> elt;
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> section <span class="hljs-keyword">in</span> sectionElts) {
+            elt = sectionElts[section];
+            <span class="hljs-keyword">if</span> (hasClass(elt, <span class="hljs-string">'hidden'</span>)) removeClass(elt, <span class="hljs-string">'hidden'</span>);
+        }
+    }</pre></div>
+        
+      
+        
+        <h2 id="add-event-listeners-to-menu-links">Add event listeners to menu links</h2>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addMenuEventListeners</span>(<span class="hljs-params">sectionElts</span>) </span>{
+        <span class="hljs-keyword">var</span> menuLinks = <span class="hljs-built_in">document</span>.querySelectorAll(<span class="hljs-string">'.pure-menu-link'</span>);
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, l = menuLinks.length; i &lt; l; i++) {
+            <span class="hljs-keyword">if</span> (i === <span class="hljs-number">0</span>) { <span class="hljs-comment">// 'All sections' link</span>
+                menuLinks[i].addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                    showAllSectionElts(sectionElts);
+                });
+            } <span class="hljs-keyword">else</span> { <span class="hljs-comment">// Other section links</span>
+                menuLinks[i].addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+                    showHideSectionElts(sectionElts, <span class="hljs-keyword">this</span>);
+                });
+            }
+        }
+    }</pre></div>
+        
+      
+        
+        <h2 id="main-function">Main function</h2>
+
+        
+          <div class='highlight'><pre>
+    <span class="hljs-keyword">return</span> {
+
+        main: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{</pre></div>
+        
+      
+        
+        <h3 id="add-selected-pure-css-classes">Add selected Pure.css classes</h3>
+
+        
+          <div class='highlight'><pre>            addPureClasses();</pre></div>
+        
+      
+        
+        <h3 id="collect-document-section-elements">Collect document section elements</h3>
+
+        
+      
+        
+        <p>Test to see if Pandoc was invoked with <code>--section-divs</code>.</p>
+
+        
+          <div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'level2'</span>).length &gt; <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">var</span> elts, sectionElts = [];
+
+                [<span class="hljs-string">'abstract'</span>, <span class="hljs-string">'level2'</span>, <span class="hljs-string">'footnotes'</span>].forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">cls</span>) </span>{
+                    elts = <span class="hljs-built_in">document</span>.getElementsByClassName(cls);
+                    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, l = elts.length; i &lt; l; i++) {
+                        sectionElts.push(elts[i]);
+                    }
+                });
+            } <span class="hljs-keyword">else</span> {</pre></div>
+        
+      
+        
+        <p>If Pandoc wasn’t invoked with <code>--section-divs</code>, we’re done here.</p>
+
+        
+          <div class='highlight'><pre>                <span class="hljs-keyword">return</span>;
+            }</pre></div>
+        
+      
+        
+        <h3 id="create-navigation-menu">Create navigation menu</h3>
+
+        
+          <div class='highlight'><pre>
+            <span class="hljs-keyword">var</span> elt;</pre></div>
+        
+      
+        
+        <p>Pandoc 1.17.1 gives all sections the class ‘level2’ except for the
+footnotes section. We want the footnotes section to appear in the
+navigation menu, so we add it here. Pandoc 1.17.1 does not give the
+footnotes section an ‘id’ attribute, so we add that here too.</p>
+
+        
+          <div class='highlight'><pre>            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> section <span class="hljs-keyword">in</span> sectionElts) {
+                elt = sectionElts[section];</pre></div>
+        
+      
+        
+        <p>Add class ‘level2’ to any element that does not have it, so that
+it appears in the navigation menu.</p>
+
+        
+          <div class='highlight'><pre>                <span class="hljs-keyword">if</span> (!hasClass(elt, <span class="hljs-string">'level2'</span>)) addClass(elt, <span class="hljs-string">'level2'</span>);</pre></div>
+        
+      
+        
+        <p>Add an ‘id’ attribute to the footnotes section.</p>
+
+        
+          <div class='highlight'><pre>                <span class="hljs-keyword">if</span> (hasClass(elt, <span class="hljs-string">'footnotes'</span>)) elt.setAttribute(<span class="hljs-string">'id'</span>, <span class="hljs-string">'footnotes'</span>);
+            }</pre></div>
+        
+      
+        
+        <p>Now create the navigation menu.</p>
+
+        
+          <div class='highlight'><pre>            createNavigation(sectionElts);</pre></div>
+        
+      
+        
+        <p>Add click handlers to menu items.</p>
+
+        
+          <div class='highlight'><pre>            addMenuEventListeners(sectionElts);</pre></div>
+        
+      
+        
+        <h3 id="add-event-listeners-to-other-elements">Add event listeners to other elements</h3>
+
+        
+      
+        
+        <p>Add click handlers to reference links.</p>
+
+        
+          <div class='highlight'><pre>            <span class="hljs-keyword">var</span> citeElts = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'citation'</span>),
+                refsElt  = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'references'</span>);
+
+            addRefLinkEventListeners(citeElts, refsElt);</pre></div>
+        
+      
+        
+        <p>Add click handlers to footnote links.</p>
+
+        
+          <div class='highlight'><pre>            <span class="hljs-keyword">var</span> fnElts = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'footnoteRef'</span>),
+                notesElt = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'footnotes'</span>);
+
+            addFnLinkEventListeners(fnElts, notesElt);
+
+        }
+    }</pre></div>
+        
+      
+        
+        <p>End module.</p>
+
+        
+          <div class='highlight'><pre>}());</pre></div>
+        
+      
+        
+        <h2 id="load-event-listener">Load event listener</h2>
+
+        
+          <div class='highlight'><pre>
+<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">'load'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    mindoc.main();
+});</pre></div>
+        
+      
+      <div class="fleur">h</div>
+    </div>
+  </div>
+</body>
+</html>

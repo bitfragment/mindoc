@@ -1,0 +1,26 @@
+{
+  "private": true,
+  "name": "mindoc",
+  "version": "1.0.0",
+  "author": {
+    "name": "Brian Lennon"
+  },
+  "description": "template for a single self-contained, very mobile-friendly HTML document",
+  "homepage": "https://bitfragment.github.io/mindoc",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitfragment/mindoc"
+  },
+  "main": "Gruntfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "docco": "latest",
+    "grunt": "~0.4.0",
+    "grunt-contrib-concat": "latest",
+    "grunt-contrib-watch": "latest",
+    "grunt-docco": "latest",
+    "grunt-inline": "latest",
+    "grunt-panda": "latest",
+    "grunt-version": "latest"
+  }
+}
