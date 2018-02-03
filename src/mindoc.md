@@ -14,7 +14,7 @@ from a CDN, with added or modified styles and [JavaScript] inlined.
 It was designed for publishing single essays and course syllabi, but
 might also be suitable for very simple documentation of other kinds.
 
-**mindoc** has been tested with Pandoc 1.17.1.
+**mindoc** has been tested with Pandoc 1.19.2.1.
 
 
 ## Installation
