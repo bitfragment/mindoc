@@ -6,6 +6,10 @@ body {
     padding: 0 1em 0 1em;
 }
 
+.pure-menu-link:focus {
+    background-color: #d3d3d3;
+}
+
 nav {
     margin: 0em 0 1em 0;
     padding: 0 0 1em 0;
