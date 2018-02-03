@@ -172,7 +172,7 @@ Pandoc output:
 
 1. You're looking at one. View the [Markdown source][this-src] that produced this page.
 2. A [course syllabus] for "Historicizing 'Digital Humanities'"
-3. Author's preprint version of an [article]
+3. Author's preprint version of an [article]; and [another]
 
 
 
@@ -180,6 +180,7 @@ Pandoc output:
 [JavaScript]:                 https://bitfragment.github.io/mindoc/docs/mindoc.html
 [course syllabus]:            http://bitfragment.net/dhhist/
 [article]:                    http://bitfragment.net/files/multilingualism.html
+[another]:                    http://bitfragment.net/files/jshist.html
 
 [mindoc-site]:                https://bitfragment.github.io/mindoc
 [mindoc-repo]:                https://github.com/bitfragment/mindoc
